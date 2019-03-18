@@ -1,0 +1,96 @@
+Sub stock_value()
+
+    Dim ticker As String
+    Dim ticker_total As Double
+    Dim Summary_Table_Row As Integer
+    Dim openning As Double
+    Dim closing As Double
+    Dim max_increase As Double
+    Dim max_decrease As Double
+    Dim max_ticker As String
+    Dim min_ticker As String
+    Dim ws As Worksheet
+    
+   For Each ws In Worksheets
+            ticker_total = 0
+            Summary_Table_Row = 2
+        
+            With ws
+                    .Cells(1, 9).Value = "Ticker"
+                    .Cells(1, 10).Value = "Yearly Change"
+                    .Cells(1, 11).Value = "Percent Change"
+                    .Cells(1, 12).Value = "Total Stock Volume"
+                    .Cells(1, 16).Value = "Ticker"
+                    .Cells(1, 17).Value = "Value"
+                    .Cells(2, 15).Value = "Greatest % Increase"
+                    .Cells(3, 15).Value = "Greatest % IDecrease"
+                    .Cells(4, 15).Value = "Greatest Total Volume"
+                    
+                    For i = 2 To .Cells(.Rows.Count, 1).End(xlUp).Row
+                        If .Cells(i - 1, 1).Value <> .Cells(i, 1).Value Then
+                            ticker_total = .Cells(i, 7).Value
+                            ' get the opening value
+                            openning = .Cells(i, 3).Value
+                        ElseIf .Cells(i + 1, 1).Value <> .Cells(i, 1).Value Then
+                            'ticker
+                            ticker = .Cells(i, 1).Value
+                            .Range("I" & Summary_Table_Row).Value = ticker
+                            ' total stock volume
+                            ticker_total = ticker_total + .Cells(i, 7).Value
+                            .Range("L" & Summary_Table_Row).Value = ticker_total
+                            ' get the closing value
+                            closing = .Cells(i, 6).Value
+                            ' yearly change
+                            .Range("J" & Summary_Table_Row).Value = closing - openning
+                            ' conditional coloring
+                            If (closing - openning > 0) Then
+                                .Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+                            ElseIf (closing - openning < 0) Then
+                                .Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+                            End If
+                            ' percent change
+                            If openning <> 0 Then .Range("K" & Summary_Table_Row).Value = (closing - openning) / openning
+                            .Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+                            
+                            Summary_Table_Row = Summary_Table_Row + 1
+                        Else
+                            ticker_total = ticker_total + .Cells(i, 7).Value
+                        End If
+                        
+                    Next i
+                    
+                    max_volume = .Range("L2").Value
+                    max_increase = .Range("K2").Value
+                    max_decrease = .Range("K2").Value
+                    volume_ticker = .Range("I2").Value
+                    max_ticker = .Range("I2").Value
+                    min_ticker = .Range("I2").Value
+                    
+                    For Each cell In .Range("I2:I" & .Cells(.Rows.Count, 9).End(xlUp).Row)
+                        If cell.Offset(0, 3).Value > max_volume Then
+                            max_volume = cell.Offset(0, 3).Value
+                            volume_ticker = cell.Value
+                        End If
+                        If cell.Offset(0, 2).Value > max_increase Then
+                            max_increase = cell.Offset(0, 2).Value
+                            max_ticker = cell.Value
+                        End If
+                        If cell.Offset(0, 2).Value < max_decrease Then
+                            max_decrease = cell.Offset(0, 2).Value
+                            min_ticker = cell.Value
+                        End If
+                    Next cell
+                    
+                    .Cells(2, 16).Value = max_ticker
+                    .Cells(3, 16).Value = min_ticker
+                    .Cells(4, 16).Value = volume_ticker
+                    
+                    .Cells(2, 17).Value = max_increase
+                    .Cells(3, 17).Value = max_decrease
+                    .Cells(4, 17).Value = max_volume
+                    
+                    .Cells(2, 17).NumberFormat = "0.00%"
+                    .Cells(3, 17).NumberFormat = "0.00%"
+            End With
+    Next ws
+End Sub
