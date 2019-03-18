@@ -1,2 +1,2 @@
 # BootcampRepo
-This is repository I'm creating with everyone watching
+This is repository I'm creating to upload my assignments for GWBootcamp
